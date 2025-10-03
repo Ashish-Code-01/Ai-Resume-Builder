@@ -310,5 +310,6 @@ For issues and feature requests, please open an issue on GitHub.
 ---
 
 Built with Next.js, Gemini AI, MongoDB, and Stripe
-#   A i - R e s u m e - B u i l d e r  
+#   A i - R e s u m e - B u i l d e r 
+ 
  # Ai-Resume-Builder
