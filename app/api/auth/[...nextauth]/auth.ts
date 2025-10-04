@@ -1,7 +1,8 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import connectDB from "@/lib/mongodb"; // use default export (was named import)
-import User from "@/models/User"; // your Mongoose User model
+import connectDB from "@/lib/mongodb";
+import User from "@/models/User"; 
+import { Types } from "mongoose";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -38,8 +39,7 @@ export const authOptions: NextAuthOptions = {
           });
         }
 
-        // Attach MongoDB user ID to the JWT
-        (token as any).id = dbUser._id.toString();
+        (token as any).id = (dbUser._id as Types.ObjectId).toString();
       }
 
       return token;
