@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
+import User  from "@/models/User";
 
 export interface IResumeContent {
   personalInfo?: {
@@ -91,7 +92,7 @@ const ResumeSchema: Schema<IResume> = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: User,
       required: true,
     },
     title: {
@@ -108,7 +109,7 @@ const ResumeSchema: Schema<IResume> = new Schema(
       default: {
         width: 816,
         height: 1056,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         sections: [],
       },
     },
@@ -127,9 +128,9 @@ const ResumeSchema: Schema<IResume> = new Schema(
   }
 );
 
-ResumeSchema.index({ userId: 1, createdAt: -1 });
-ResumeSchema.index({ publicSlug: 1 });
+ResumeSchema.index({ userId: 1, createdAt: -1, publicSlug: 1 });
 
-const Resume: Model<IResume> = mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);
+const Resume: Model<IResume> =
+  mongoose.models.Resume || mongoose.model<IResume>("Resume", ResumeSchema);
 
 export default Resume;

@@ -62,10 +62,7 @@ const UserSchema: Schema<IUser> = new Schema(
   {
     timestamps: true,
   }
-);
-
-UserSchema.index({ email: 1 });
-UserSchema.index({ stripeCustomerId: 1 });
+)
 
 const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 

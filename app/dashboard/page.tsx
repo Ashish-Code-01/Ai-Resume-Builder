@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, FileText, Trash2, CreditCard as Edit, Crown, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signOut } from 'next-auth/react';
+import axios from 'axios';
 
 interface Resume {
   _id: string;
@@ -57,32 +58,41 @@ export default function DashboardPage() {
   };
 
   const handleCreateResume = async () => {
+    const data = {
+      title: "Untitled Resume",
+      content: {},
+      canvasLayout: {
+        width: 816,
+        height: 1056,
+        backgroundColor: "#ffffff",
+        sections: [],
+      },
+    };
+
     try {
-      const response = await fetch('/api/resumes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Untitled Resume' }),
-      });
+      const response = await axios.post("/api/resumes", data);
+      
+      const responseData = response.data;
 
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push(`/editor/${data.resume._id}`);
+      if (response.status === 200 && responseData?.resume?._id) {
+        router.push(`/editor/${responseData.resume._id}`);
       } else {
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to create resume',
-          variant: 'destructive',
+          title: "Error",
+          description: responseData.error || "Failed to create resume",
+          variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: 'Failed to create resume',
-        variant: 'destructive',
+        title: "Error",
+        description:
+          error?.response?.data?.error || "Failed to create resume frontend",
+        variant: "destructive",
       });
     }
   };
+
 
   const handleDeleteResume = async (id: string) => {
     if (!confirm('Are you sure you want to delete this resume?')) return;
