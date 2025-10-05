@@ -41,8 +41,8 @@ export default function CanvasEditor({
     if (initialLayout?.sections && initialLayout.sections.length > 0) {
       const loadedElements = initialLayout.sections.map((section: any, index: number) => ({
         id: `text-${index}`,
-        x: section.x,
-        y: section.y,
+        x: section.x ?? 0,
+        y: section.y ?? 0,
         text: section.text || '',
         fontSize: section.fontSize || 12,
         fontFamily: section.fontFamily || 'Arial',
@@ -54,67 +54,65 @@ export default function CanvasEditor({
     } else {
       initializeDefaultLayout();
     }
-  }, []);
+  }, [initialLayout, resumeContent]);
 
   const initializeDefaultLayout = () => {
     const newElements: TextElement[] = [];
     let yOffset = 40;
     let id = 0;
 
-    if (resumeContent.personalInfo) {
-      if (resumeContent.personalInfo.fullName) {
-        newElements.push({
-          id: `text-${id++}`,
-          x: 40,
-          y: yOffset,
-          text: resumeContent.personalInfo.fullName,
-          fontSize: 32,
-          fontFamily: 'Arial',
-          fill: '#1e293b',
-          fontStyle: 'bold',
-          width: 736,
-        });
-        yOffset += 50;
-      }
+    const personal = resumeContent?.personalInfo || {};
+    const experience = resumeContent?.experience || [];
+    const education = resumeContent?.education || [];
+    const skills = resumeContent?.skills || [];
 
-      const contactInfo = [
-        resumeContent.personalInfo.email,
-        resumeContent.personalInfo.phone,
-        resumeContent.personalInfo.location,
-      ].filter(Boolean).join(' | ');
-
-      if (contactInfo) {
-        newElements.push({
-          id: `text-${id++}`,
-          x: 40,
-          y: yOffset,
-          text: contactInfo,
-          fontSize: 12,
-          fontFamily: 'Arial',
-          fill: '#64748b',
-          fontStyle: 'normal',
-          width: 736,
-        });
-        yOffset += 30;
-      }
-
-      if (resumeContent.personalInfo.summary) {
-        newElements.push({
-          id: `text-${id++}`,
-          x: 40,
-          y: yOffset,
-          text: resumeContent.personalInfo.summary,
-          fontSize: 12,
-          fontFamily: 'Arial',
-          fill: '#334155',
-          fontStyle: 'normal',
-          width: 736,
-        });
-        yOffset += 80;
-      }
+    if (personal.fullName) {
+      newElements.push({
+        id: `text-${id++}`,
+        x: 40,
+        y: yOffset,
+        text: personal.fullName,
+        fontSize: 32,
+        fontFamily: 'Arial',
+        fill: '#1e293b',
+        fontStyle: 'bold',
+        width: 736,
+      });
+      yOffset += 50;
     }
 
-    if (resumeContent.experience && resumeContent.experience.length > 0) {
+    const contactInfo = [personal.email, personal.phone, personal.location].filter(Boolean).join(' | ');
+    if (contactInfo) {
+      newElements.push({
+        id: `text-${id++}`,
+        x: 40,
+        y: yOffset,
+        text: contactInfo,
+        fontSize: 12,
+        fontFamily: 'Arial',
+        fill: '#64748b',
+        fontStyle: 'normal',
+        width: 736,
+      });
+      yOffset += 30;
+    }
+
+    if (personal.summary) {
+      newElements.push({
+        id: `text-${id++}`,
+        x: 40,
+        y: yOffset,
+        text: personal.summary,
+        fontSize: 12,
+        fontFamily: 'Arial',
+        fill: '#334155',
+        fontStyle: 'normal',
+        width: 736,
+      });
+      yOffset += 80;
+    }
+
+    if (experience.length > 0) {
       newElements.push({
         id: `text-${id++}`,
         x: 40,
@@ -128,8 +126,8 @@ export default function CanvasEditor({
       });
       yOffset += 35;
 
-      resumeContent.experience.forEach((exp: any) => {
-        const expText = `${exp.position} | ${exp.company}\n${exp.startDate} - ${exp.endDate || 'Present'}\n${exp.description}`;
+      experience.forEach((exp: any) => {
+        const expText = `${exp.position || ''} | ${exp.company || ''}\n${exp.startDate || ''} - ${exp.endDate || 'Present'}\n${exp.description || ''}`;
         newElements.push({
           id: `text-${id++}`,
           x: 40,
@@ -145,7 +143,7 @@ export default function CanvasEditor({
       });
     }
 
-    if (resumeContent.education && resumeContent.education.length > 0) {
+    if (education.length > 0) {
       newElements.push({
         id: `text-${id++}`,
         x: 40,
@@ -159,8 +157,8 @@ export default function CanvasEditor({
       });
       yOffset += 35;
 
-      resumeContent.education.forEach((edu: any) => {
-        const eduText = `${edu.degree}${edu.field ? ` in ${edu.field}` : ''}\n${edu.institution}\n${edu.startDate} - ${edu.endDate}`;
+      education.forEach((edu: any) => {
+        const eduText = `${edu.degree || ''}${edu.field ? ` in ${edu.field}` : ''}\n${edu.institution || ''}\n${edu.startDate || ''} - ${edu.endDate || ''}`;
         newElements.push({
           id: `text-${id++}`,
           x: 40,
@@ -176,7 +174,7 @@ export default function CanvasEditor({
       });
     }
 
-    if (resumeContent.skills && resumeContent.skills.length > 0) {
+    if (skills.length > 0) {
       newElements.push({
         id: `text-${id++}`,
         x: 40,
@@ -190,8 +188,9 @@ export default function CanvasEditor({
       });
       yOffset += 35;
 
-      resumeContent.skills.forEach((skillGroup: any) => {
-        const skillText = `${skillGroup.category}: ${skillGroup.items.join(', ')}`;
+      skills.forEach((skillGroup: any) => {
+        const skillItems = skillGroup?.items || [];
+        const skillText = `${skillGroup?.category || 'Skill'}: ${skillItems.join(', ')}`;
         newElements.push({
           id: `text-${id++}`,
           x: 40,
@@ -217,17 +216,11 @@ export default function CanvasEditor({
     setElements(newElements);
   };
 
-  const handleZoomIn = () => {
-    setScale(Math.min(scale + 0.1, 2));
-  };
-
-  const handleZoomOut = () => {
-    setScale(Math.max(scale - 0.1, 0.5));
-  };
+  const handleZoomIn = () => setScale(Math.min(scale + 0.1, 2));
+  const handleZoomOut = () => setScale(Math.max(scale - 0.1, 0.5));
 
   const handleSave = () => {
     if (!onSave) return;
-
     const layout = {
       width: 816,
       height: 1056,
@@ -244,7 +237,6 @@ export default function CanvasEditor({
         color: el.fill,
       })),
     };
-
     onSave(layout);
   };
 
@@ -255,9 +247,7 @@ export default function CanvasEditor({
           <Button variant="outline" size="sm" onClick={handleZoomOut}>
             <ZoomOut className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-slate-600 min-w-[60px] text-center">
-            {Math.round(scale * 100)}%
-          </span>
+          <span className="text-sm text-slate-600 min-w-[60px] text-center">{Math.round(scale * 100)}%</span>
           <Button variant="outline" size="sm" onClick={handleZoomIn}>
             <ZoomIn className="h-4 w-4" />
           </Button>
@@ -278,14 +268,7 @@ export default function CanvasEditor({
       <div className="flex-1 overflow-auto bg-slate-100 p-8">
         <div className="max-w-4xl mx-auto">
           <Card className="shadow-2xl overflow-hidden">
-            <Stage
-              ref={stageRef}
-              width={816}
-              height={1056}
-              scaleX={scale}
-              scaleY={scale}
-              style={{ backgroundColor: '#ffffff' }}
-            >
+            <Stage ref={stageRef} width={816} height={1056} scaleX={scale} scaleY={scale} style={{ backgroundColor: '#ffffff' }}>
               <Layer>
                 {elements.map((element) => (
                   <Text
